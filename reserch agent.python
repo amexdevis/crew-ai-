@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 import os
 
 # Set up your API key
-os.environ["AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NMY"] = "AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"
+os.environ["AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"] = "AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"
 
 # Define the LLM
 llm = ChatOpenAI(model="gpt-4", temperature=0.7)
