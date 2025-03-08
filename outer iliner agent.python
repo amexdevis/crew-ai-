@@ -1,0 +1,46 @@
+from crewai import Agent, Task, Crew
+from langchain_openai import ChatOpenAI
+import os
+
+# Set up your API key
+os.environ["AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"] = "AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"
+
+# Define the LLM
+llm = ChatOpenAI(model="gpt-4", temperature=0.7)
+
+# Define the Outliner Agent
+outliner = Agent(
+    role="Outliner",
+    goal="Create a detailed outline for the book",
+    backstory="A meticulous planner skilled in structuring narratives.",
+    verbose=True,
+    llm=llm
+)
+
+# Define the Task (reads the concept from the previous step)
+with open("book_concept.txt", "r") as f:
+    concept = f.read()
+
+task = Task(
+    description=f"Based on this concept: '{concept}', create a detailed outline with 5 chapters for the sci-fi novel, including key plot points.",
+    agent=outliner,
+    expected_output="A chapter-by-chapter outline with descriptions."
+)
+
+# Create the Crew
+crew = Crew(
+    agents=[outliner],
+    tasks=[task],
+    process=Process.sequential,
+    verbose=2
+)
+
+# Run the Crew
+result = crew.kickoff()
+
+# Save the output to a file
+with open("book_outline.txt", "w") as f:
+    f.write(str(result))
+
+print("Outliner Output:")
+print(result)
