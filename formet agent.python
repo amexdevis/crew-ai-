@@ -1,0 +1,48 @@
+from crewai import Agent, Task, Crew
+from langchain_openai import ChatOpenAI
+import os
+
+# Set up your API key
+os.environ["AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"] = "AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"
+
+# Define the LLM
+llm = ChatOpenAI(model="gpt-4", temperature=0.7)
+
+# Define the Formatter Agent
+formatter = Agent(
+    role="Formatter",
+    goal="Compile and format the final manuscript",
+    backstory="A technical expert in document preparation and publishing.",
+    verbose=True,
+    llm=llm
+)
+
+# Define the Task (reads the edited draft and feedback)
+with open("edited_chapters.txt", "r") as f:
+    edited_draft = f.read()
+with open("review_feedback.txt", "r") as f:
+    feedback = f.read()
+
+task = Task(
+    description=f"Compile this edited draft: '{edited_draft}' into a single manuscript, incorporating this feedback: '{feedback}'. Format it as a Markdown file with a title page.",
+    agent=formatter,
+    expected_output="A formatted Markdown file containing the manuscript."
+)
+
+# Create the Crew
+crew = Crew(
+    agents=[formatter],
+    tasks=[task],
+    process=Process.sequential,
+    verbose=2
+)
+
+# Run the Crew
+result = crew.kickoff()
+
+# Save the output to a file
+with open("final_manuscript.md", "w") as f:
+    f.write(str(result))
+
+print("Formatter Output:")
+print(result)
