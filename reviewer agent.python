@@ -1,0 +1,46 @@
+from crewai import Agent, Task, Crew
+from langchain_openai import ChatOpenAI
+import os
+
+# Set up your API key
+os.environ["AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"] = "AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"
+
+# Define the LLM
+llm = ChatOpenAI(model="gpt-4", temperature=0.7)
+
+# Define the Reviewer Agent
+reviewer = Agent(
+    role="Reviewer",
+    goal="Provide feedback and suggest improvements",
+    backstory="A critical thinker with an eye for narrative improvement.",
+    verbose=True,
+    llm=llm
+)
+
+# Define the Task (reads the edited draft)
+with open("edited_chapters.txt", "r") as f:
+    edited_draft = f.read()
+
+task = Task(
+    description=f"Review this edited draft: '{edited_draft}' and provide feedback on plot, characters, and pacing. Suggest improvements.",
+    agent=reviewer,
+    expected_output="A feedback report with suggestions."
+)
+
+# Create the Crew
+crew = Crew(
+    agents=[reviewer],
+    tasks=[task],
+    process=Process.sequential,
+    verbose=2
+)
+
+# Run the Crew
+result = crew.kickoff()
+
+# Save the output to a file
+with open("review_feedback.txt", "w") as f:
+    f.write(str(result))
+
+print("Reviewer Output:")
+print(result)
