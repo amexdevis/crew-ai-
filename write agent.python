@@ -1,0 +1,48 @@
+from crewai import Agent, Task, Crew
+from langchain_openai import ChatOpenAI
+import os
+
+# Set up your API key
+os.environ["AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"] = "AIzaSyCFW1w84H96M9qRueCQRj1h0YWffGQT7NM"
+
+# Define the LLM
+llm = ChatOpenAI(model="gpt-4", temperature=0.7)
+
+# Define the Writer Agent
+writer = Agent(
+    role="Writer",
+    goal="Write the chapters of the book based on the outline",
+    backstory="A talented author with a flair for engaging prose.",
+    verbose=True,
+    llm=llm
+)
+
+# Define the Task (reads the outline and research)
+with open("book_outline.txt", "r") as f:
+    outline = f.read()
+with open("research_notes.txt", "r") as f:
+    research = f.read()
+
+task = Task(
+    description=f"Using this outline: '{outline}' and research: '{research}', write the first 3 chapters of the sci-fi novel.",
+    agent=writer,
+    expected_output="Draft text for chapters 1-3."
+)
+
+# Create the Crew
+crew = Crew(
+    agents=[writer],
+    tasks=[task],
+    process=Process.sequential,
+    verbose=2
+)
+
+# Run the Crew
+result = crew.kickoff()
+
+# Save the output to a file
+with open("draft_chapters.txt", "w") as f:
+    f.write(str(result))
+
+print("Writer Output:")
+print(result)
